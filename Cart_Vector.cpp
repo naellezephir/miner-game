@@ -17,14 +17,16 @@ Cart_Vector::Cart_Vector(double inputx, double inputy)
 	y = inputy;
 }
 
+//functionality for multiplying a vector by a double
 Cart_Vector operator* (Cart_Vector &v1, double d)
 {
 	Cart_Vector new_vector;
-	new_vector.x = v1.x*d;
-	new_vector.y = v1.y*d;
+	new_vector.x = v1.x * d;
+	new_vector.y = v1.y * d;
 	return new_vector;
 }
 
+//fucntion to tell the function how to divide a cart vector by a double
 Cart_Vector operator/ (Cart_Vector &v1, double d)
 {
 	Cart_Vector new_vector;
@@ -41,6 +43,7 @@ Cart_Vector operator/ (Cart_Vector &v1, double d)
 	return new_vector;
 }
 
+// how to properly output a cart vector
 ostream &operator<< (ostream &output, Cart_Vector &v1)
 {
 	output<<"<"<<v1.x<<", "<<v1.y<<">";

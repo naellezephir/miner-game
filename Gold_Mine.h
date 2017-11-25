@@ -1,9 +1,10 @@
-#ifndef TOWN_HALL_H
-#define TOWN_HALL_H
+#ifndef GOLD_MINE_H
+#define GOLD_MINE_H
 #include "Cart_Point.h"
 #include "Game_Object.h"
 
-class Town_Hall : public Game_Object
+
+class Gold_Mine : public Game_Object
 {
 	private:
 		int id_num;
@@ -12,14 +13,18 @@ class Town_Hall : public Game_Object
 		Cart_Point location;
 
 	public:
+
 		Cart_Point get_location();
 		int get_id();
-		void deposit_gold(double deposite_amount);
+		bool is_empty();
+		double dig_gold(double amount_to_dig = 35.0);
 		bool update();
 		void show_status();
-		Town_Hall();
-		Town_Hall(int inputId, Cart_Point inputLoc);
-		~Town_Hall();
+
+
+		Gold_Mine();
+		Gold_Mine(int inputId, Cart_Point inputLoc);
+		~Gold_Mine();
 };
 
 #endif

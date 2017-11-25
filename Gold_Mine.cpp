@@ -1,95 +1,96 @@
 #include <iostream>
 #include "Gold_Mine.h"
-#include "Game_Object.h"
 
 using namespace std;
 
-class Gold_Mine : public Game_Object
+//create gold mine constructor with initial variable values
+Gold_Mine::Gold_Mine() : Game_Object(display_code, id_num)
 {
-private:
-	char diplay_code;
-	int id_num;
-	char state;
-	double amount;
-	Cart_Point location;
+	id_num = 0;
+	display_code = 'G';
+	location = Cart_Point();
+	amount = 100;
+	state = 'f';
+	cout << "Gold_Mine default constructed." << endl;
+}
 
-public:
-	Gold_Mine()
+//create a constructor that takes in an id number and location
+Gold_Mine::Gold_Mine(int inputId, Cart_Point inputLoc) : Game_Object(display_code, inputId, inputLoc)
+{
+	display_code = 'G';
+	amount = 100;
+	state = 'f';
+	this -> id_num = inputId;
+	this -> location = inputLoc;
+	cout << "Gold_Mine constructed." << endl;
+}
+
+//gold mine destructor
+Gold_Mine::~Gold_Mine()
+{
+	cout << "Gold_Mine destructed." << endl;
+}
+
+
+//gets location of a gold mine
+Cart_Point Gold_Mine::get_location()
+{
+	return location;
+}
+
+//gets the id number of a gold mine
+int Gold_Mine::get_id()
+{
+	return id_num;
+}
+
+//function checks to see if the gold mine is empty by the amount of gold
+bool Gold_Mine::is_empty()
+{
+	if(amount == 0)
 	{
-		diplay_code = 'G';
-		id_num = 0;
-		state = 'f';
-		amount = 100;
-		location = Cart_Point();
-
-		cout << "Gold_Mine default constructed" << endl;
+		return true;
 	}
-
-	Gold_Mine(int inputId, Cart_Point inputLoc)
+	else
 	{
-		this id_num -> inputId;
-		this location -> inputLoc;
-		diplay_code = 'G';
-		state = 'f';
-		amount = 100;
-
-		cout << "Gold_Mine constructed" << endl;
+		return false;
 	}
+}
 
-	Cart_Point get_location()
+//function to dig gold
+double Gold_Mine::dig_gold(double amount_to_dig)
+{
+	if(amount >= amount_to_dig)
 	{
-		return location;
+		amount = amount - amount_to_dig;  //if amout is more than the default amount you subtract the amount of gold in the gold mine by the default
+		return amount_to_dig; //how much gold was dug
 	}
-
-	int get_id()
+	else
 	{
-		return id_num;
+		double newamount = amount; //second variable to return the amount of gold dug and set amount to zero
+		amount = 0.0; //set amount to zero
+		return newamount; 
 	}
+}
 
-	bool is_empty()
+bool Gold_Mine::update()
+{
+	if (amount == 0 && state != 'e') //by checking for both condition update doesnt continually return true if the gold mine isempty
 	{
-		if(amount == 0)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		state = 'e';
+		display_code = 'g';
+		cout << "Gold_Mine " << get_id() << " has been depleted" << endl;
+		return true;
 	}
-
-	double dig_gold(double amount_to_dig = 35.0)
+	else
 	{
-		if(amount >= amount_to_dig)
-		{
-			amount = amount - amount_to_dig;
-			return amount;
-		}
-		else
-		{
-			return amount;
-			amount = 0;
-		}
+		return false; 
 	}
+}
 
-	bool update()
-	{
-		if (state = 'e')
-		{
-			return false;
-		}
-
-		else if (amount = 0)
-		{
-			state = 'e';
-			display_code = 'g'
-			cout << "Gold_Mine (" << id_num << ") has been depleted" << endl;
-			return true;
-		}
-	}
-
-	void show_status()
-	{
-		cout << "Gold Mine status: " << display_code << id_num << " at location " << location << " Contains " << amount << "." << endl;
-	}
+void Gold_Mine::show_status()
+{
+	cout << "Gold Mine status: "; 
+	Game_Object::show_status();	//goldmine status just adds necessary parts to show status
+	cout << " contains " << amount << "." << endl;
 }

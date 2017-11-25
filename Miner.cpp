@@ -1,147 +1,138 @@
 #include <iostream>
-#include "Cart_Point.h"
-#include "Cart_Vector.h"
-#include "Gold_Mine.h"
-#include "Town_Hall.h"
+#include "Miner.h"
 
 using namespace std;
 
-class Miner : public Person
+//default miner constructor
+Miner::Miner() : Person('M')
 {
-	private:
-		char display_code;
-		int id_num;
-		char state;
-		double amount;
-		Cart_Point location;
-		Gold_Mine* mine;
-		Town_Hall* home;
+	amount = 0;
+	state = 's'; //initialize variables values
+	mine = NULL;
+	home = NULL;
 
-	public:
-		Miner()
-		{
-			Person('M');
-			amount = 0;
-			mine = NULL;
-			home = NULL;
+	cout << "Miner default constructed." << endl;
+}
 
-			cout << "Miner default constructed." << endl;
-		}
+//miner constructor
+Miner::Miner(int in_id, Cart_Point in_loc) : Person('M', in_id, in_loc)
+{
+	amount = 0;
+	state = 's';
+	mine = NULL;
+	home = NULL;
 
-		Miner(int in_id, Cart_Point in_loc)
-		{
-			Person('M', in_id, in_loc);
-			amount = 0;
-			mine = 0;
-			home = 0;
+	cout << "Miner constructed." << endl;
+}
 
-			cout << "Miner constructed." << endl;
-		}
+//miner destructor
+Miner::~Miner()
+{
+	cout << "Miner destructed." << endl;
+}
 
-		bool update()
-		{
-			switch(state)
+//update for miner
+bool Miner::update()
+{
+	switch(state) //giant switch statement depending on state, each case causes different chages to different states and outputs a different result
+	{
+		case 's':
+			return false;
+			break;
+
+		case 'm':
+			if (update_location() == true)
 			{
-				case 's':
-					return false;
-
-				case 'm':
-					if (update_location())
-					{
-						state = 's';
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-
-				case 'o':
-					if (update_location())
-					{
-						state = 'g';
-						return true;
-					}
-
-					else
-					{
-						return false;
-					}
-
-				case 'g':
-					mine.dig_gold();
-					cout << display_code << id_num << ": Got " << amount << " gold." << endl;
-					setup_destination() //need destination
-					state = 'i';
-					return true;
-
-				case 'i' :
-					if (update_location())
-					{
-						state = 'd';
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-
-				case 'd':
-					cout << display_code << id_num << ": Deposit " << amount << " of gold." << endl;
-					home.deposit_gold();
-					amount = 0;
-					if(mine.status == 'e')
-					{
-						state = 's';
-						cout << display_code << id_num << ": More work?" << endl;
-						return true;
-					}
-					else
-					{
-						state = 'o';
-						cout << display_code << id_num << ": Going back for more." << endl;
-						return true;
-					}
+				state = 's'; //changes state
+				return true;
+				break;
 			}
-		}
-
-		void start_mining(Gold_Mine* inputMine, Town_Hall* inputHome)
-		{
-			//figure out how to move gold from mine to home
-			this -> mine = inputMine;
-			this -> home = inputHome;
-			
-			setup_destination(home.location); //this is probably wrong need destination
-			state = 'o';
-			cout << "Miner " << id_num << " mining at Gold_Mine " << mine << " and depositing at Town_Hall " << home << endl;
-			cout << display_code << id_num << ": Yes, my lord." << endl;
-		}
-
-		Cart_Point get_location()
-		{
-			return location;
-			cout << "Miner status: " << Person::show_status() <<;
-			switch(state)
+			else
 			{
-				case 's':
-					cout << "Stopped." << endl;
-
-				case 'm':
-					//this is probably wrong bc i dont know destination
-					cout << "Moving at speed " << speed << " to " << destination;
-
-				case 'o':
-					cout << "Outbound to a mine." << endl;
-
-				case 'g':
-					cout << "Getting gold from mine." << endl;
-
-				case 'i' :
-					cout << "Inbound to home with load: " << amount << endl;
-
-				case 'd':
-					cout << "Depositing gold." << endl;
+				return false;
+				break;
 			}
 
-		}
+		case 'o':
+			if (update_location() == true)
+			{
+				state = 'g'; //changes state
+				return true;
+				break;
+			}
+
+			else
+			{
+				return false;
+				break;
+			}
+
+		case 'g':
+			amount = mine -> dig_gold(); //digs gold and adds it to miner amount
+			cout << display_code << get_id() << ": Got " << amount << " gold." << endl;
+			setup_destination(home -> get_location());  //sets new destination so that miner can move there after
+			state = 'i';
+			return true;
+			break;
+
+		case 'i' :
+			if (update_location())
+			{
+				state = 'd'; //changes state
+				return true;
+				break;
+			}
+			else
+			{
+				return false;
+				break;
+			}
+
+		case 'd':
+			cout << display_code << get_id() << ": Deposit " << amount << " gold." << endl;
+			home -> deposit_gold(amount); //adds amount to town hall amount
+			amount = 0; //sets it to 0 so miner can get more gold
+			if(mine -> is_empty()) //if mines are empty the miner's just chillin
+			{
+				state = 's'; //change state
+				cout << display_code << get_id() << ": More work?" << endl;
+				return true;
+				break;
+			}
+			else //if not send the miner back to the mine to get more gold
+			{
+				state = 'o'; //change state
+				setup_destination(mine -> get_location()); //make destination the mine
+				cout << display_code << get_id() << ": Going back for more." << endl;
+				return true;
+				break;
+			}
+	}
+}
+
+void Miner::start_mining(Gold_Mine* inputMine, Town_Hall* inputHome) //start mining function
+{
+	mine = inputMine;
+	home = inputHome;
+	setup_destination(mine -> get_location());  //set location to mine so the miner can move there
+	state = 'o'; //change state
+	cout << "Miner " << get_id() << " mining at Gold_Mine " << mine -> get_id() << " and depositing at Town_Hall " << home -> get_id() << endl;
+	cout << display_code << get_id() << ": Yes, my lord." << endl;
+}
+
+//returns location of miner
+Cart_Point Miner::get_location()
+{
+	Person::show_status();	
+	return location;	
+}
+
+//THIS TOOK ME FOREVER TO THINK OF BUT ITS AN EASY FIX idk if this is right but since show status is a vitrual function i just made one for miner and in it calls person status. it adds the amount of gold the miner has to the end of the show status for person when the mine is inbound since amount is a private variable for miner and the show status switch statement is in person the base class. 
+void Miner::show_status()
+{
+	Person::show_status();
+	if(state == 'i')
+	{
+		cout << amount << endl;
+	}
 }
